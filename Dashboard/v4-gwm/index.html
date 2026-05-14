@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>GWM × Innopower — Installation Progress · Executive Overview</title>
+  <meta name="version" content="4.0.0-gwm">
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+
+<header class="app-header">
+  <div class="header-top">
+    <div class="header-l">
+      <div class="brand">
+        <div class="brand-mark">
+          <span class="brand-gwm">GWM</span>
+          <span class="brand-x">·</span>
+          <span class="brand-innopower">INNOPOWER</span>
+        </div>
+        <div class="brand-sub">Installation Progress · Executive Overview</div>
+      </div>
+      <div class="context">
+        <div class="context-item">Contract <b>GWMMT2610045</b></div>
+        <div class="context-item">Term <b>2026-05-01 → 2027-04-30</b></div>
+      </div>
+    </div>
+    <div class="header-r">
+      <div class="date-picker" id="date-picker">
+        <button id="date-prev" title="Previous snapshot">‹</button>
+        <select id="date-select" title="Choose snapshot date"></select>
+        <button id="date-next" title="Next snapshot">›</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section class="kpi-strip" id="kpi-strip">
+  <!-- populated by app.js -->
+</section>
+
+<main class="app-main">
+  <section class="issue-drilldown hidden" id="issue-drilldown" aria-hidden="true">
+    <div class="drilldown-head">
+      <h2>Issue Flagged · Root cause breakdown</h2>
+      <div class="drilldown-meta">
+        <span id="drilldown-source-note">Customer-side issues vs. operational issues</span>
+      </div>
+    </div>
+    <div class="drilldown-grid" id="drilldown-grid">
+      <!-- populated by app.js -->
+    </div>
+    <div class="drilldown-footnote">
+      <span class="legend-dot customer"></span> Customer-side issue
+      <span class="legend-spacer"></span>
+      <span class="legend-dot ops"></span> Operational / admin
+    </div>
+  </section>
+</main>
+
+<footer class="app-footer">
+  <div class="footer-l">
+    <span class="footer-source">Source: <b id="footer-source-file">data/snapshots/—</b></span>
+    <span id="footer-pulled-by">—</span>
+  </div>
+  <div class="footer-r">
+    <span>Contract GWMMT2610045</span>
+    <span>Prepared by Innopower Co., Ltd.</span>
+  </div>
+</footer>
+
+<div class="boot-loading" id="boot-loading">
+  <div class="spinner"></div>
+  <div class="label" id="boot-label">Loading snapshot index…</div>
+</div>
+
+<div class="boot-error" id="boot-error" style="display:none">
+  <h2>Cannot load snapshot data</h2>
+  <pre id="boot-error-detail"></pre>
+  <div class="hint">
+    Ensure <code>data/index.csv</code> and <code>data/snapshots/YYYY-MM-DD.json</code> exist.
+    Run <code>scripts/pull-daily.ps1</code> first if not.
+  </div>
+</div>
+
+<script src="./category-engine.js"></script>
+<script src="./app.js"></script>
+
+</body>
+</html>

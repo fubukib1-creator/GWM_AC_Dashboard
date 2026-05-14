@@ -1,0 +1,736 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>GWM Installation SLA — Requirements Diagram</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+  :root {
+    --brand:        #154a86;
+    --brand-2:      #1e63b3;
+    --accent:       #ea580c;
+
+    --ink:          #101418;
+    --ink-2:        #2a2f37;
+    --muted:        #5b6670;
+    --muted-2:      #9aa0a8;
+
+    --canvas:       #fafaf7;
+    --canvas-soft:  #fdfcf6;
+    --canvas-warm:  #f8f7f0;
+    --surface:      #ffffff;
+    --hair:         #e7e5dc;
+    --hair-soft:    #f0eee5;
+
+    --ok:           #15803d;
+    --ok-soft:      #dcfce7;
+    --medium:       #a16207;
+    --medium-soft:  #fef3c7;
+    --critical:     #b91c1c;
+    --critical-soft:#fee2e2;
+    --critical-2:   #7f1d1d;
+
+    --ink-on-dark:  #f5f5ef;
+    --dark:         #0e1116;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--canvas);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans Thai', 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+    font-size: 14px; line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .mono { font-family: 'IBM Plex Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+  .display { font-family: 'IBM Plex Sans Condensed', sans-serif; font-weight: 600; letter-spacing: -0.01em; }
+  .caps    { font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+  .muted   { color: var(--muted); }
+
+  /* ─── Header ────────────────────────────────────────────────────────── */
+  .app-header {
+    background: var(--dark); color: var(--ink-on-dark);
+    border-bottom: 2px solid var(--brand);
+    padding: 20px 36px 18px;
+  }
+  .h-top {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    gap: 24px; flex-wrap: wrap;
+  }
+  .h-l { display: flex; align-items: center; gap: 28px; flex-wrap: wrap; }
+  .brand { display: flex; flex-direction: column; gap: 3px; }
+  .brand-mark {
+    font-family: 'IBM Plex Sans Condensed', sans-serif;
+    font-weight: 700; letter-spacing: 0.15em; font-size: 13px;
+  }
+  .brand-mark .x { color: var(--accent); margin: 0 6px; font-weight: 400; }
+  .brand-sub {
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px;
+    color: #8a9099; letter-spacing: 0.04em;
+  }
+  .context {
+    display: flex; gap: 16px; padding-left: 28px;
+    border-left: 1px solid var(--ink-2);
+    flex-wrap: wrap;
+  }
+  .ctx-item { font-size: 11px; color: #8a9099; }
+  .ctx-item b { color: var(--ink-on-dark); font-weight: 500; font-family: 'IBM Plex Mono', monospace; }
+  .h-r .readonly-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 9px; border: 1px solid var(--ink-2); border-radius: 2px;
+    font-size: 11px; color: var(--ok); font-family: 'IBM Plex Mono', monospace;
+    background: rgba(21, 128, 61, 0.08);
+  }
+  .h-r .readonly-pill::before { content: '🔒'; font-size: 10px; }
+
+  .page-title {
+    font-family: 'IBM Plex Sans Condensed', sans-serif;
+    font-weight: 600; font-size: 26px; letter-spacing: -0.01em;
+    color: var(--ink-on-dark);
+    margin: 16px 0 4px;
+  }
+  .page-sub {
+    font-size: 12.5px; color: #8a9099;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  /* ─── Sections ──────────────────────────────────────────────────────── */
+  main { padding: 28px 36px 60px; max-width: 1400px; margin: 0 auto; }
+
+  .section-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: 16px; margin: 28px 0 14px; padding-bottom: 8px;
+    border-bottom: 1px solid var(--hair);
+  }
+  .section-head:first-child { margin-top: 0; }
+  .section-head h2 {
+    margin: 0;
+    font-family: 'IBM Plex Sans Condensed', sans-serif;
+    font-weight: 600; font-size: 17px; letter-spacing: 0.01em;
+    color: var(--ink);
+  }
+  .section-head h2 .sub {
+    font-family: 'IBM Plex Sans Thai', sans-serif;
+    font-weight: 400; font-size: 12px; color: var(--muted);
+    margin-left: 10px;
+  }
+
+  /* ─── Severity legend ───────────────────────────────────────────────── */
+  .legend {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 0; border: 1px solid var(--hair); background: var(--surface);
+    margin-bottom: 8px;
+  }
+  .legend-cell { padding: 14px 18px; border-right: 1px solid var(--hair); }
+  .legend-cell:last-child { border-right: none; }
+  .legend-dot {
+    display: inline-block; width: 10px; height: 10px; border-radius: 2px;
+    margin-right: 8px; vertical-align: middle;
+  }
+  .legend-name {
+    font-family: 'IBM Plex Sans Condensed', sans-serif;
+    font-weight: 600; font-size: 14px;
+  }
+  .legend-rule {
+    font-family: 'IBM Plex Mono', monospace; font-size: 11.5px;
+    color: var(--muted); margin-top: 4px;
+  }
+  .legend-note {
+    font-size: 11.5px; color: var(--muted); padding: 10px 14px;
+    background: var(--canvas-warm); border: 1px solid var(--hair);
+    border-top: none;
+  }
+  .legend-note b { color: var(--ink); font-weight: 500; }
+
+  /* ─── Lifecycle ribbon ──────────────────────────────────────────────── */
+  .ribbon {
+    background: var(--surface); border: 1px solid var(--hair);
+    padding: 28px 24px 32px;
+    overflow-x: auto;
+  }
+  .ribbon-track {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr;
+    align-items: stretch;
+    gap: 14px;
+    min-width: 1100px;
+  }
+
+  .stage {
+    background: var(--canvas-warm);
+    border: 1px solid var(--hair);
+    padding: 18px 16px;
+    display: flex; flex-direction: column; gap: 8px;
+    min-height: 140px;
+  }
+  .stage-k {
+    font-family: 'IBM Plex Mono', monospace; font-weight: 600;
+    font-size: 12px; color: var(--brand); letter-spacing: 0.05em;
+  }
+  .stage-name {
+    font-family: 'IBM Plex Sans Condensed', sans-serif;
+    font-weight: 600; font-size: 16px; color: var(--ink);
+  }
+  .stage-th { font-size: 12px; color: var(--muted); }
+  .stage-ids {
+    margin-top: auto;
+    font-family: 'IBM Plex Mono', monospace; font-size: 10.5px;
+    color: var(--muted); border-top: 1px dashed var(--hair);
+    padding-top: 6px;
+  }
+
+  .gate {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 8px; min-width: 200px; padding: 0 4px;
+    position: relative;
+  }
+  .gate::before, .gate::after {
+    content: ''; position: absolute; top: 16px; height: 2px;
+    background: var(--brand); width: 14px;
+  }
+  .gate::before { left: -14px; }
+  .gate::after  { right: -14px; }
+
+  .gate-arrow {
+    width: 100%; height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+  }
+  .gate-arrow::before {
+    content: ''; position: absolute; top: 50%; left: 0; right: 14px;
+    height: 2px; background: var(--brand);
+  }
+  .gate-arrow::after {
+    content: ''; position: absolute; top: 50%; right: 0;
+    transform: translateY(-50%);
+    width: 0; height: 0;
+    border-top: 7px solid transparent;
+    border-bottom: 7px solid transparent;
+    border-left: 11px solid var(--brand);
+  }
+  .gate-clause {
+    position: absolute; top: -6px; left: 50%; transform: translate(-50%, -100%);
+    font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+    color: var(--brand); font-weight: 600; letter-spacing: 0.06em;
+    background: var(--surface); padding: 0 8px;
+    white-space: nowrap;
+  }
+  .gate-deadline {
+    background: var(--brand); color: #fff;
+    font-family: 'IBM Plex Sans Condensed', sans-serif;
+    font-weight: 600; font-size: 14px;
+    padding: 5px 11px; border-radius: 2px;
+    margin-top: 4px;
+    white-space: nowrap;
+  }
+  .gate-anchor {
+    font-family: 'IBM Plex Mono', monospace; font-size: 10.5px;
+    color: var(--muted); text-align: center;
+    line-height: 1.5;
+  }
+  .gate-anchor b { color: var(--ink); font-weight: 500; }
+  .gate-anchor .arr { color: var(--brand); margin: 0 4px; }
+
+  /* Severity ladder under each gate */
+  .ladder {
+    width: 100%; margin-top: 6px;
+    border: 1px solid var(--hair);
+  }
+  .ladder-row {
+    display: grid; grid-template-columns: 14px 1fr auto;
+    align-items: center;
+    padding: 4px 7px;
+    font-size: 10.5px;
+    border-bottom: 1px solid var(--hair);
+  }
+  .ladder-row:last-child { border-bottom: none; }
+  .ladder-swatch {
+    width: 8px; height: 8px; border-radius: 1px;
+  }
+  .ladder-row.ok       { background: var(--ok-soft); }
+  .ladder-row.medium   { background: var(--medium-soft); }
+  .ladder-row.critical { background: var(--critical-soft); }
+  .ladder-row.ok       .ladder-swatch { background: var(--ok); }
+  .ladder-row.medium   .ladder-swatch { background: var(--medium); }
+  .ladder-row.critical .ladder-swatch { background: var(--critical); }
+  .ladder-label { color: var(--ink); font-weight: 500; }
+  .ladder-range { font-family: 'IBM Plex Mono', monospace; color: var(--ink-2); }
+
+  /* ─── Background clocks ─────────────────────────────────────────────── */
+  .clocks { display: grid; grid-template-columns: 1fr; gap: 14px; }
+
+  .clock-card {
+    background: var(--surface); border: 1px solid var(--hair);
+    padding: 18px 22px 22px;
+  }
+  .clock-card h3 {
+    margin: 0 0 4px;
+    font-family: 'IBM Plex Sans Condensed', sans-serif;
+    font-weight: 600; font-size: 15px;
+  }
+  .clock-card .clock-sub {
+    font-size: 11.5px; color: var(--muted); margin-bottom: 14px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .axis {
+    position: relative; height: 56px; margin: 24px 0 8px;
+    border: 1px solid var(--hair);
+    display: grid; grid-template-columns: 50fr 8fr 2fr 5fr;
+  }
+  .band { position: relative; }
+  .band-ok       { background: var(--ok-soft); }
+  .band-medium   { background: var(--medium-soft); }
+  .band-critical { background: var(--critical-soft); }
+  .band-returned { background: #f1d1d1; }
+  .band-label {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    font-family: 'IBM Plex Sans Condensed', sans-serif;
+    font-size: 11px; font-weight: 600;
+    color: var(--ink); white-space: nowrap;
+  }
+  .band-tick {
+    position: absolute; bottom: -22px; left: 0;
+    font-family: 'IBM Plex Mono', monospace; font-size: 10.5px;
+    color: var(--ink-2); transform: translateX(-50%);
+  }
+  .band-tick::before {
+    content: ''; position: absolute; left: 50%; bottom: 16px;
+    width: 1px; height: 6px; background: var(--ink-2);
+  }
+  .band-tick.left  { left: 0; transform: translateX(0); }
+  .band-tick.left::before { left: 0; }
+
+  .clock-meta {
+    margin-top: 22px; padding-top: 12px; border-top: 1px dashed var(--hair);
+    display: grid; grid-template-columns: 1fr 1fr; gap: 18px;
+    font-size: 11.5px;
+  }
+  .clock-meta .label { color: var(--muted); font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 3px; }
+  .clock-meta .value { font-size: 12.5px; }
+  .clock-meta code {
+    font-family: 'IBM Plex Mono', monospace; font-size: 11.5px;
+    background: var(--canvas-warm); padding: 1px 5px; border: 1px solid var(--hair);
+  }
+
+  /* False-confirm card uses a different layout */
+  .fc-grid {
+    display: grid; grid-template-columns: auto 1fr; gap: 18px;
+    align-items: center;
+  }
+  .fc-icon {
+    width: 64px; height: 64px;
+    background: var(--critical-soft);
+    border: 1px solid var(--critical);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'IBM Plex Sans Condensed', sans-serif;
+    font-size: 22px; font-weight: 700; color: var(--critical);
+  }
+  .fc-scenario {
+    font-family: 'IBM Plex Mono', monospace; font-size: 11.5px;
+    background: var(--canvas-warm); border: 1px solid var(--hair);
+    padding: 10px 12px; margin: 8px 0;
+    line-height: 1.7;
+  }
+  .fc-scenario .field { color: var(--brand); }
+  .fc-scenario .op    { color: var(--accent); }
+  .fc-penalty {
+    display: inline-block; background: var(--critical); color: #fff;
+    font-family: 'IBM Plex Sans Condensed', sans-serif; font-weight: 600;
+    font-size: 12px; padding: 4px 9px; border-radius: 2px;
+  }
+
+  /* ─── Clauses block ─────────────────────────────────────────────────── */
+  .clauses {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+  @media (max-width: 1000px) { .clauses { grid-template-columns: 1fr; } }
+  .clause-card {
+    background: var(--surface); border: 1px solid var(--hair);
+    padding: 16px 18px 18px;
+    border-top: 3px solid var(--brand);
+  }
+  .clause-tag {
+    font-family: 'IBM Plex Mono', monospace; font-size: 10.5px;
+    color: var(--brand); letter-spacing: 0.08em; font-weight: 600;
+    text-transform: uppercase;
+  }
+  .clause-title {
+    font-family: 'IBM Plex Sans Condensed', sans-serif;
+    font-weight: 600; font-size: 14.5px; margin: 4px 0 10px;
+  }
+  .clause-text {
+    font-size: 12.5px; color: var(--ink-2);
+    border-left: 2px solid var(--hair);
+    padding-left: 10px; font-style: italic;
+    line-height: 1.55;
+  }
+
+  .escape-notes {
+    margin-top: 14px; background: var(--canvas-warm);
+    border: 1px solid var(--hair); padding: 14px 18px;
+    font-size: 12px; color: var(--ink-2); line-height: 1.6;
+  }
+  .escape-notes b { color: var(--ink); font-weight: 600; }
+  .escape-notes code {
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px;
+    background: var(--surface); padding: 1px 4px; border: 1px solid var(--hair);
+  }
+
+  /* ─── Footer ────────────────────────────────────────────────────────── */
+  .app-footer {
+    border-top: 1px solid var(--hair);
+    padding: 18px 36px;
+    background: var(--canvas-warm);
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px; flex-wrap: wrap;
+    font-size: 11.5px; color: var(--muted);
+  }
+  .app-footer a { color: var(--brand); text-decoration: none; }
+  .app-footer a:hover { text-decoration: underline; }
+  .app-footer code {
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px;
+    background: var(--surface); padding: 1px 5px; border: 1px solid var(--hair);
+  }
+
+  /* ─── Print ─────────────────────────────────────────────────────────── */
+  @media print {
+    body { background: #fff; }
+    .app-header { background: #fff; color: var(--ink); border-bottom: 2px solid var(--brand); }
+    .brand-mark, .page-title { color: var(--ink); }
+    .brand-sub, .page-sub, .ctx-item, .ctx-item b { color: var(--muted); }
+    .h-r .readonly-pill { display: none; }
+    main { padding: 16px 24px; max-width: 100%; }
+    .ribbon { overflow: visible; page-break-inside: avoid; }
+    .ribbon-track { min-width: 0; }
+    .clocks { page-break-before: always; }
+  }
+
+  /* ─── Responsive ────────────────────────────────────────────────────── */
+  @media (max-width: 900px) {
+    main { padding: 20px 18px 50px; }
+    .app-header { padding: 16px 18px 14px; }
+    .legend { grid-template-columns: 1fr; }
+    .legend-cell { border-right: none; border-bottom: 1px solid var(--hair); }
+    .legend-cell:last-child { border-bottom: none; }
+  }
+  </style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="h-top">
+    <div class="h-l">
+      <div class="brand">
+        <div class="brand-mark">INNOPOWER<span class="x">×</span>GWM</div>
+        <div class="brand-sub">SLA Requirements Diagram · contractual reference</div>
+      </div>
+      <div class="context">
+        <div class="ctx-item">Contract <b>GWMMT2610045</b></div>
+        <div class="ctx-item">Signed <b>2026-05-01</b></div>
+        <div class="ctx-item">Term <b>2026-05-01 → 2027-04-30</b></div>
+        <div class="ctx-item">Parties <b>Innopower (A) × EVW Service (B)</b></div>
+      </div>
+    </div>
+    <div class="h-r">
+      <div class="readonly-pill">REFERENCE</div>
+    </div>
+  </div>
+  <div class="page-title">GWM Installation SLA — Requirements Diagram</div>
+  <div class="page-sub">Visual restatement of Installation Service Response Time §1–§3, Status #11 auto-return, and Platform §5 false-confirm audit. Legal source of truth is the signed PDF.</div>
+</header>
+
+<main>
+
+  <!-- ─── Severity legend ─────────────────────────────────────────────── -->
+  <div class="section-head">
+    <h2>Severity buckets <span class="sub">applied by both SLA engines · v2 flags · v3 leaf tags</span></h2>
+  </div>
+  <div class="legend">
+    <div class="legend-cell">
+      <div><span class="legend-dot" style="background:var(--ok)"></span><span class="legend-name">In SLA</span></div>
+      <div class="legend-rule">lateness ≤ 0 · colour <span class="mono">#15803d</span></div>
+    </div>
+    <div class="legend-cell">
+      <div><span class="legend-dot" style="background:var(--medium)"></span><span class="legend-name">Medium breach</span></div>
+      <div class="legend-rule">0 &lt; lateness ≤ 24h <span class="muted">(contact)</span> · ≤ 1 wd <span class="muted">(survey / install)</span> · colour <span class="mono">#a16207</span></div>
+    </div>
+    <div class="legend-cell">
+      <div><span class="legend-dot" style="background:var(--critical)"></span><span class="legend-name">Critical breach</span></div>
+      <div class="legend-rule">lateness &gt; 24h <span class="muted">(contact)</span> · &gt; 1 wd <span class="muted">(survey / install)</span> · colour <span class="mono">#b91c1c</span></div>
+    </div>
+  </div>
+  <div class="legend-note">
+    <b>Lateness measurement (ADR-012).</b> Lateness is measured in the same unit as the deadline — calendar hours for §1, working days for §2/§3.
+    <b>Working day</b> = Monday–Friday. No public holidays are subtracted (conservative default until the Thai holiday calendar is finalised; see <code>THAI_HOLIDAYS</code> in both engines).
+  </div>
+
+  <!-- ─── Lifecycle ribbon ────────────────────────────────────────────── -->
+  <div class="section-head">
+    <h2>Case lifecycle &amp; SLA gates <span class="sub">three operational deadlines across four stages</span></h2>
+  </div>
+  <div class="ribbon">
+    <div class="ribbon-track">
+
+      <!-- K1 -->
+      <div class="stage">
+        <div class="stage-k">K1</div>
+        <div class="stage-name">NewJob</div>
+        <div class="stage-th">Intake · ยังไม่มอบหมาย</div>
+        <div class="stage-ids">parent_status = NewJob<br/>status id —</div>
+      </div>
+
+      <!-- Gate 1: §1 Contact 24h -->
+      <div class="gate">
+        <div class="gate-arrow">
+          <div class="gate-clause">Response Time §1</div>
+        </div>
+        <div class="gate-deadline">24 calendar hours</div>
+        <div class="gate-anchor">
+          <b>createdAt</b><span class="arr">→</span><b>assign_date</b>
+        </div>
+        <div class="ladder">
+          <div class="ladder-row ok">
+            <div class="ladder-swatch"></div>
+            <div class="ladder-label">In SLA</div>
+            <div class="ladder-range">≤ 24h</div>
+          </div>
+          <div class="ladder-row medium">
+            <div class="ladder-swatch"></div>
+            <div class="ladder-label">Medium</div>
+            <div class="ladder-range">+0 → +24h late</div>
+          </div>
+          <div class="ladder-row critical">
+            <div class="ladder-swatch"></div>
+            <div class="ladder-label">Critical</div>
+            <div class="ladder-range">&gt; +24h late</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- K2 -->
+      <div class="stage">
+        <div class="stage-k">K2</div>
+        <div class="stage-name">InitialCustomer</div>
+        <div class="stage-th">Contacting · กำลังติดต่อ</div>
+        <div class="stage-ids">parent_status = InitialCustomer<br/>status id 1–11</div>
+      </div>
+
+      <!-- Gate 2: §2 Survey 3wd -->
+      <div class="gate">
+        <div class="gate-arrow">
+          <div class="gate-clause">Response Time §2</div>
+        </div>
+        <div class="gate-deadline">3 working days</div>
+        <div class="gate-anchor">
+          <b>createdAt</b><span class="arr">→</span><b>confirm_setup_date</b>
+        </div>
+        <div class="ladder">
+          <div class="ladder-row ok">
+            <div class="ladder-swatch"></div>
+            <div class="ladder-label">In SLA</div>
+            <div class="ladder-range">≤ 3 wd</div>
+          </div>
+          <div class="ladder-row medium">
+            <div class="ladder-swatch"></div>
+            <div class="ladder-label">Medium</div>
+            <div class="ladder-range">+0 → +1 wd late</div>
+          </div>
+          <div class="ladder-row critical">
+            <div class="ladder-swatch"></div>
+            <div class="ladder-label">Critical</div>
+            <div class="ladder-range">&gt; +1 wd late</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- K3 -->
+      <div class="stage">
+        <div class="stage-k">K3</div>
+        <div class="stage-name">InstallationScheduled</div>
+        <div class="stage-th">Scheduled · นัดติดตั้ง</div>
+        <div class="stage-ids">parent_status = InstallationScheduled<br/>status id 12–18</div>
+      </div>
+
+      <!-- Gate 3: §3 Install 3wd -->
+      <div class="gate">
+        <div class="gate-arrow">
+          <div class="gate-clause">Response Time §3</div>
+        </div>
+        <div class="gate-deadline">3 working days</div>
+        <div class="gate-anchor">
+          <b>confirm_setup_date</b><span class="arr">→</span><b>delivery_date</b>
+        </div>
+        <div class="ladder">
+          <div class="ladder-row ok">
+            <div class="ladder-swatch"></div>
+            <div class="ladder-label">In SLA</div>
+            <div class="ladder-range">≤ 3 wd</div>
+          </div>
+          <div class="ladder-row medium">
+            <div class="ladder-swatch"></div>
+            <div class="ladder-label">Medium</div>
+            <div class="ladder-range">+0 → +1 wd late</div>
+          </div>
+          <div class="ladder-row critical">
+            <div class="ladder-swatch"></div>
+            <div class="ladder-label">Critical</div>
+            <div class="ladder-range">&gt; +1 wd late</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- K4 -->
+      <div class="stage">
+        <div class="stage-k">K4</div>
+        <div class="stage-name">InstallationCompleted</div>
+        <div class="stage-th">Delivered · ส่งมอบแล้ว</div>
+        <div class="stage-ids">parent_status = InstallationCompleted<br/>status id 19</div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="escape-notes">
+    <b>Retrospective worst-case (K4).</b> Completed cases still receive an SLA tag computed across all three milestones traversed:
+    <code>worstOf( contact_lateness, survey_lateness, install_lateness )</code>.
+    The tag answers the monthly-audit question "did this case breach any SLA along its lifecycle?" — not "is it currently late?"
+  </div>
+
+  <!-- ─── Background clocks ───────────────────────────────────────────── -->
+  <div class="section-head">
+    <h2>Parallel rules <span class="sub">clocks &amp; audits that run alongside the §1–§3 ladder</span></h2>
+  </div>
+  <div class="clocks">
+
+    <!-- Auto-return clock -->
+    <div class="clock-card">
+      <h3>Auto-return clock — 60-day cutoff</h3>
+      <div class="clock-sub">Source: Status taxonomy id=11 · [คืนงานสำหรับแอดมิน] ลูกค้าไม่พร้อมติดตั้งเกิน 2 เดือน</div>
+
+      <div class="axis">
+        <div class="band band-ok">
+          <div class="band-label">0 – 50 days · in SLA</div>
+          <span class="band-tick left">day 0</span>
+        </div>
+        <div class="band band-medium">
+          <div class="band-label">50 – 58d · at risk</div>
+          <span class="band-tick left">50</span>
+        </div>
+        <div class="band band-critical">
+          <div class="band-label">58–60</div>
+          <span class="band-tick left">58</span>
+        </div>
+        <div class="band band-returned">
+          <div class="band-label">&gt; 60d · auto-returned</div>
+          <span class="band-tick left">60</span>
+        </div>
+      </div>
+
+      <div class="clock-meta">
+        <div>
+          <div class="label">Trigger</div>
+          <div class="value">Any <b>active</b> (non-delivered) case where <code>now − createdAt &gt; 60 days</code></div>
+        </div>
+        <div>
+          <div class="label">Innopower warning</div>
+          <div class="value">Dashboards flag at <b>day 50</b> to leave a 10-day window to act before portal auto-returns the case.</div>
+        </div>
+        <div>
+          <div class="label">Severity escalation</div>
+          <div class="value">50–58d <span style="color:var(--medium)">high</span> · 58–60d <span style="color:var(--critical)">critical</span> · &gt; 60d <span style="color:var(--critical-2)">auto-returned to admin (status id=11)</span></div>
+        </div>
+        <div>
+          <div class="label">Implementation</div>
+          <div class="value">v2: <code>AUTO_RETURN_RISK</code> flag · v3: auto-return badge on every node containing qualifying cases</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- False-confirm audit -->
+    <div class="clock-card">
+      <h3>False-confirm audit — same-day confirmation</h3>
+      <div class="clock-sub">Source: Install Service Management Platform §5 · 5% monthly fee deduction</div>
+
+      <div class="fc-grid">
+        <div class="fc-icon">5%</div>
+        <div>
+          <div class="fc-scenario">
+            stage = <span class="field">InstallationCompleted</span> &nbsp;<span class="op">AND</span>&nbsp; workingDays( <span class="field">confirm_setup_date</span> <span class="op">→</span> <span class="field">delivery_date</span> ) <span class="op">&lt;</span> 1
+          </div>
+          <div style="font-size:12.5px; color:var(--ink-2); line-height:1.6;">
+            Confirmation and delivery happened on the same working day — the confirm step may have been a formality rather than real customer agreement. If systemic, triggers <span class="fc-penalty">Platform §5 · 5% deduction</span> of monthly fees. v3 routes these to leaf <code style="font-family:'IBM Plex Mono',monospace;background:var(--canvas-warm);padding:1px 5px;border:1px solid var(--hair)">K4.B</code> ("Suspicious confirm"); v2 raises the <code style="font-family:'IBM Plex Mono',monospace;background:var(--canvas-warm);padding:1px 5px;border:1px solid var(--hair)">FALSE_CONFIRM_AUDIT</code> flag.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Issue tracking -->
+    <div class="clock-card">
+      <h3>Issue tracking — <span style="font-family:'IBM Plex Sans Thai',sans-serif">งานติดปัญหา</span></h3>
+      <div class="clock-sub">Source: Service Quality Assessment §2(b) and (f)</div>
+      <div style="font-size:12.5px; color:var(--ink-2); line-height:1.6;">
+        Cases where <code style="font-family:'IBM Plex Mono',monospace;background:var(--canvas-warm);padding:1px 5px;border:1px solid var(--hair)">status.name === 'งานติดปัญหา'</code> are surfaced as a categorical flag (orthogonal to §1–§3). The contract attaches QA penalties for unresolved customer issues and quality failures.
+        Severity: <span style="color:var(--medium); font-weight:500">medium</span> baseline, escalates with age.
+        v3 routes them to <code style="font-family:'IBM Plex Mono',monospace;background:var(--canvas-warm);padding:1px 5px;border:1px solid var(--hair)">K*.B.*</code> leaves based on the <code style="font-family:'IBM Plex Mono',monospace;background:var(--canvas-warm);padding:1px 5px;border:1px solid var(--hair)">detail</code> field root-cause.
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ─── Verbatim clauses ────────────────────────────────────────────── -->
+  <div class="section-head">
+    <h2>Source clauses <span class="sub">verbatim — Installation Service Response Time, pages 5–6</span></h2>
+  </div>
+  <div class="clauses">
+    <div class="clause-card">
+      <div class="clause-tag">Response Time §1</div>
+      <div class="clause-title">Contact within 24 hours</div>
+      <div class="clause-text">
+        "Party B shall <b>contact the user within twenty-four (24) hours</b> upon receipt of the installation service work order, confirm the installation order and user information, and make an appointment for on-site investigation as described in Attachment 2."
+      </div>
+    </div>
+    <div class="clause-card">
+      <div class="clause-tag">Response Time §2</div>
+      <div class="clause-title">Survey within 3 working days</div>
+      <div class="clause-text">
+        "Party B shall <b>conduct on-site investigation within three (3) working days</b> upon receipt of the service work order. In case of customer inconvenience or other special reasons, Party B shall file with GWM for record, the timeline shall be extended accordingly and Party B shall not be liable for such delay."
+      </div>
+    </div>
+    <div class="clause-card">
+      <div class="clause-tag">Response Time §3</div>
+      <div class="clause-title">Install within 3 working days of approval</div>
+      <div class="clause-text">
+        "[…] Party B shall work out an installation and construction plan for charging piles and <b>complete the installation within three (3) working days upon approval of the users</b>."
+      </div>
+    </div>
+  </div>
+
+  <div class="escape-notes">
+    <b>Escape valves not yet modelled in the dashboards.</b> §2 (customer-inconvenience extension) and Installation Technical Specification §5 (force majeure: accidents, vehicle breakdown, adverse weather, etc.) both extend the SLA clock when filed for record. The dashboards currently have no way to mark a job as "filed for extension" — see ADR-012 for the deferred implementation. Until then, any SLA breach surfaced may include cases that are legally excused.
+  </div>
+
+</main>
+
+<footer class="app-footer">
+  <div>
+    Sources ·
+    <a href="../design/contract-and-sla.md"><code>design/contract-and-sla.md</code></a> ·
+    <a href="../design/api-reference.md"><code>design/api-reference.md</code></a> ·
+    <a href="../Contracted%20Signed%20Version/"><code>Contracted Signed Version/</code></a> (legal source of truth)
+  </div>
+  <div>
+    Contract <b>GWMMT2610045</b> · © Innopower Co., Ltd.
+  </div>
+</footer>
+
+</body>
+</html>

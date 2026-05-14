@@ -1,0 +1,17 @@
+# Secrets — NEVER commit
+scripts/credentials.json
+**/credentials.json
+for_VPS_Deploy/scripts/credentials.json
+
+# Snapshot data (pull fresh on VPS)
+data/snapshots/*.json
+
+# OS junk
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
+*.swp

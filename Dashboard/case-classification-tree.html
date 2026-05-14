@@ -1,0 +1,1016 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>GWM Case Classification — Tree Diagram</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+  :root {
+    --brand:        #154a86;
+    --brand-2:      #1e63b3;
+    --accent:       #ea580c;
+
+    --ink:          #101418;
+    --ink-2:        #2a2f37;
+    --muted:        #5b6670;
+    --muted-2:      #9aa0a8;
+
+    --canvas:       #fafaf7;
+    --canvas-soft:  #fdfcf6;
+    --canvas-warm:  #f8f7f0;
+    --surface:      #ffffff;
+    --hair:         #e7e5dc;
+    --hair-soft:    #f0eee5;
+    --hair-strong:  #d4d1c4;
+
+    --ok:           #15803d;
+    --ok-soft:      #dcfce7;
+    --medium:       #a16207;
+    --medium-soft:  #fef3c7;
+    --critical:     #b91c1c;
+    --critical-soft:#fee2e2;
+    --critical-2:   #7f1d1d;
+
+    --ink-on-dark:  #f5f5ef;
+    --dark:         #0e1116;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--canvas);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans Thai', 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+    font-size: 14px; line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .mono { font-family: 'IBM Plex Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+  .display { font-family: 'IBM Plex Sans Condensed', sans-serif; font-weight: 600; letter-spacing: -0.01em; }
+  .caps    { font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+  .muted   { color: var(--muted); }
+
+  /* Header — copied verbatim from sla-requirements.html for visual continuity */
+  .app-header {
+    background: var(--dark); color: var(--ink-on-dark);
+    border-bottom: 2px solid var(--brand);
+    padding: 20px 36px 18px;
+  }
+  .h-top {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    gap: 24px; flex-wrap: wrap;
+  }
+  .h-l { display: flex; align-items: center; gap: 28px; flex-wrap: wrap; }
+  .brand { display: flex; flex-direction: column; gap: 3px; }
+  .brand-mark {
+    font-family: 'IBM Plex Sans Condensed', sans-serif;
+    font-weight: 700; letter-spacing: 0.15em; font-size: 13px;
+  }
+  .brand-mark .x { color: var(--accent); margin: 0 6px; font-weight: 400; }
+  .brand-sub {
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px;
+    color: #8a9099; letter-spacing: 0.04em;
+  }
+  .context {
+    display: flex; gap: 16px; padding-left: 28px;
+    border-left: 1px solid var(--ink-2);
+    flex-wrap: wrap;
+  }
+  .ctx-item { font-size: 11px; color: #8a9099; }
+  .ctx-item b { color: var(--ink-on-dark); font-weight: 500; font-family: 'IBM Plex Mono', monospace; }
+  .h-r .readonly-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 9px; border: 1px solid var(--ink-2); border-radius: 2px;
+    font-size: 11px; color: var(--ok); font-family: 'IBM Plex Mono', monospace;
+    background: rgba(21, 128, 61, 0.08);
+  }
+  .h-r .readonly-pill::before { content: '🔒'; font-size: 10px; }
+
+  .page-title {
+    font-family: 'IBM Plex Sans Condensed', sans-serif;
+    font-weight: 600; font-size: 26px; letter-spacing: -0.01em;
+    color: var(--ink-on-dark);
+    margin: 16px 0 4px;
+  }
+  .page-sub {
+    font-size: 12.5px; color: #8a9099;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  /* Sections — same pattern as sla-requirements.html */
+  main { padding: 28px 36px 60px; max-width: 1400px; margin: 0 auto; }
+
+  .section-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: 16px; margin: 28px 0 14px; padding-bottom: 8px;
+    border-bottom: 1px solid var(--hair);
+  }
+  .section-head:first-child { margin-top: 0; }
+  .section-head h2 {
+    margin: 0;
+    font-family: 'IBM Plex Sans Condensed', sans-serif;
+    font-weight: 600; font-size: 17px; letter-spacing: 0.01em;
+    color: var(--ink);
+  }
+  .section-head h2 .sub {
+    font-family: 'IBM Plex Sans Thai', sans-serif;
+    font-weight: 400; font-size: 12px; color: var(--muted);
+    margin-left: 10px;
+  }
+
+  /* Orthogonality callout */
+  .axes {
+    display: grid; grid-template-columns: 1fr 1fr;
+    border: 1px solid var(--hair); background: var(--surface);
+    margin-bottom: 8px;
+  }
+  .axis-cell {
+    padding: 16px 20px; border-right: 1px solid var(--hair);
+  }
+  .axis-cell:last-child { border-right: none; }
+  .axis-tag {
+    font-family: 'IBM Plex Mono', monospace; font-size: 10.5px;
+    color: var(--brand); letter-spacing: 0.08em; font-weight: 600;
+    text-transform: uppercase;
+  }
+  .axis-title {
+    font-family: 'IBM Plex Sans Condensed', sans-serif;
+    font-weight: 600; font-size: 15px; margin: 4px 0 6px;
+  }
+  .axis-text {
+    font-size: 12.5px; color: var(--ink-2); line-height: 1.55;
+  }
+  .axis-text a {
+    color: var(--brand); text-decoration: none;
+    border-bottom: 1px dashed var(--brand);
+  }
+  .axis-text code {
+    font-family: 'IBM Plex Mono', monospace; font-size: 11.5px;
+    background: var(--canvas-warm); padding: 1px 5px; border: 1px solid var(--hair);
+  }
+  .axes-note {
+    font-size: 11.5px; color: var(--muted); padding: 10px 14px;
+    background: var(--canvas-warm); border: 1px solid var(--hair);
+    border-top: none;
+  }
+  .axes-note b { color: var(--ink); font-weight: 500; }
+
+  /* Tree diagram container */
+  .tree-frame {
+    background: var(--surface); border: 1px solid var(--hair);
+    padding: 20px 18px 26px;
+    overflow-x: auto;
+  }
+  .tree-svg {
+    display: block;
+    width: 100%; height: auto;
+    min-width: 980px;
+  }
+
+  /* Connectors */
+  .conn {
+    fill: none; stroke: var(--hair-strong); stroke-width: 1;
+    stroke-linecap: round; stroke-linejoin: round;
+  }
+  .conn-trunk {
+    fill: none; stroke: var(--brand); stroke-width: 1.4;
+  }
+
+  /* Node boxes */
+  .node-box {
+    fill: var(--surface); stroke: var(--hair-strong); stroke-width: 1;
+  }
+  .node-root .node-box {
+    fill: var(--dark); stroke: var(--brand); stroke-width: 1.5;
+  }
+  .node-stage .node-box {
+    fill: var(--canvas-warm); stroke: var(--brand); stroke-width: 1.4;
+  }
+  .node-sub .node-box {
+    fill: var(--canvas-warm); stroke: var(--hair-strong); stroke-width: 1;
+  }
+  .node-leaf .node-box {
+    fill: var(--surface); stroke: var(--hair-strong); stroke-width: 1;
+  }
+  .node-catchall .node-box {
+    fill: var(--surface); stroke: var(--medium); stroke-width: 1;
+    stroke-dasharray: 4 3;
+  }
+
+  /* foreignObject contents */
+  .nbody {
+    width: 100%; height: 100%;
+    display: flex; align-items: center;
+    padding: 0 10px;
+    font-family: 'IBM Plex Sans Thai', 'IBM Plex Sans', sans-serif;
+    font-size: 12px; color: var(--ink); line-height: 1.2;
+  }
+  .nbody .nkey {
+    font-family: 'IBM Plex Mono', monospace; font-weight: 600;
+    font-size: 11px; letter-spacing: 0.02em;
+    background: var(--brand); color: #fff;
+    padding: 3px 6px; border-radius: 2px;
+    margin-right: 10px;
+    white-space: nowrap;
+  }
+  .node-root .nbody { color: var(--ink-on-dark); justify-content: center; }
+  .node-root .nbody .nkey {
+    background: transparent; color: var(--ink-on-dark);
+    border: 1px solid var(--brand); padding: 2px 7px;
+    font-size: 10.5px;
+  }
+  .node-root .nlabel-th { color: var(--ink-on-dark); font-weight: 500; }
+  .node-root .nlabel-en { color: #8a9099; }
+
+  .node-stage .nbody .nkey { background: var(--brand); color: #fff; }
+  .node-sub   .nbody .nkey { background: var(--brand-2); color: #fff; font-size: 10.5px; }
+  .node-leaf  .nbody .nkey {
+    background: var(--surface); color: var(--brand);
+    border: 1px solid var(--brand); padding: 2px 6px;
+    font-weight: 500;
+  }
+  .node-catchall .nbody .nkey {
+    background: var(--medium-soft); color: var(--medium);
+    border: 1px solid var(--medium);
+  }
+
+  .ntext { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+  .nlabel-th {
+    font-family: 'IBM Plex Sans Thai', sans-serif;
+    font-size: 12.5px; color: var(--ink); font-weight: 500;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .nlabel-en {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 10.5px; color: var(--muted);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .nstage-meta {
+    font-family: 'IBM Plex Mono', monospace; font-size: 9.5px;
+    color: var(--muted); margin-top: 2px;
+    white-space: nowrap;
+  }
+  .node-stage .nbody {
+    flex-direction: column; align-items: stretch; padding: 6px 10px;
+    justify-content: center; gap: 1px;
+  }
+  .node-stage .nbody .nrow1 {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .node-stage .nlabel-th { font-size: 12.5px; font-weight: 600; }
+  .node-stage .nlabel-en { font-size: 10.5px; }
+
+  .ndriver {
+    font-family: 'IBM Plex Mono', monospace; font-size: 10.5px;
+    color: var(--brand); margin-left: 10px;
+    white-space: nowrap;
+    background: var(--canvas-warm); padding: 2px 6px;
+    border: 1px solid var(--hair);
+  }
+  .node-catchall .ndriver {
+    color: var(--medium); background: var(--medium-soft);
+    border-color: var(--medium);
+  }
+
+  /* Legend */
+  .legend-row {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    border: 1px solid var(--hair); background: var(--surface);
+    margin-bottom: 8px;
+  }
+  .legend-cell {
+    padding: 14px 16px; border-right: 1px solid var(--hair);
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .legend-cell:last-child { border-right: none; }
+  .legend-name {
+    font-family: 'IBM Plex Sans Condensed', sans-serif;
+    font-weight: 600; font-size: 13.5px;
+  }
+  .legend-sample {
+    display: inline-flex; align-items: center;
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px;
+    padding: 3px 7px; border-radius: 2px;
+    width: fit-content;
+  }
+  .legend-sample.s-root  { background: var(--dark); color: var(--ink-on-dark); border: 1px solid var(--brand); }
+  .legend-sample.s-stage { background: var(--brand); color: #fff; }
+  .legend-sample.s-sub   { background: var(--brand-2); color: #fff; }
+  .legend-sample.s-leaf  { background: var(--surface); color: var(--brand); border: 1px solid var(--brand); }
+  .legend-sample.s-catch { background: var(--medium-soft); color: var(--medium); border: 1px dashed var(--medium); }
+  .legend-desc {
+    font-size: 11.5px; color: var(--ink-2); line-height: 1.45;
+  }
+  .legend-desc code {
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px;
+    background: var(--canvas-warm); padding: 1px 4px; border: 1px solid var(--hair);
+  }
+
+  /* Footer */
+  .app-footer {
+    border-top: 1px solid var(--hair);
+    padding: 18px 36px;
+    background: var(--canvas-warm);
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px; flex-wrap: wrap;
+    font-size: 11.5px; color: var(--muted);
+  }
+  .app-footer a { color: var(--brand); text-decoration: none; }
+  .app-footer a:hover { text-decoration: underline; }
+  .app-footer code {
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px;
+    background: var(--surface); padding: 1px 5px; border: 1px solid var(--hair);
+  }
+
+  /* Print — fit on A3 landscape, single page */
+  @media print {
+    @page { size: A3 landscape; margin: 12mm; }
+    body { background: #fff; }
+    .app-header { background: #fff; color: var(--ink); border-bottom: 2px solid var(--brand); }
+    .brand-mark, .page-title { color: var(--ink); }
+    .brand-sub, .page-sub, .ctx-item, .ctx-item b { color: var(--muted); }
+    .h-r .readonly-pill { display: none; }
+    main { padding: 16px 18px; max-width: 100%; }
+    .tree-frame { overflow: visible; page-break-inside: avoid; padding: 8px 0; }
+    .tree-svg { min-width: 0; }
+    .axes, .legend-row { page-break-inside: avoid; }
+  }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    main { padding: 20px 18px 50px; }
+    .app-header { padding: 16px 18px 14px; }
+    .axes, .legend-row { grid-template-columns: 1fr; }
+    .axis-cell, .legend-cell { border-right: none; border-bottom: 1px solid var(--hair); }
+    .axis-cell:last-child, .legend-cell:last-child { border-bottom: none; }
+  }
+  </style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="h-top">
+    <div class="h-l">
+      <div class="brand">
+        <div class="brand-mark">INNOPOWER<span class="x">×</span>GWM</div>
+        <div class="brand-sub">Case Classification Tree · v3 dichotomous key</div>
+      </div>
+      <div class="context">
+        <div class="ctx-item">Contract <b>GWMMT2610045</b></div>
+        <div class="ctx-item">Signed <b>2026-05-01</b></div>
+        <div class="ctx-item">Term <b>2026-05-01 → 2027-04-30</b></div>
+        <div class="ctx-item">Parties <b>Innopower (A) × EVW Service (B)</b></div>
+      </div>
+    </div>
+    <div class="h-r">
+      <div class="readonly-pill">REFERENCE</div>
+    </div>
+  </div>
+  <div class="page-title">Case Classification Tree — v3 Dichotomous Key</div>
+  <div class="page-sub">Visual restatement of design/categorisation-tree.md · 1 root · 8 branches · 23 leaves · classifier in Dashboard/v3/category-engine.js.</div>
+</header>
+
+<main>
+
+  <!-- ─── Two orthogonal axes ─────────────────────────────────────────── -->
+  <div class="section-head">
+    <h2>Two orthogonal axes <span class="sub">every case is classified along both — independently</span></h2>
+  </div>
+  <div class="axes">
+    <div class="axis-cell">
+      <div class="axis-tag">Axis 1 · this document</div>
+      <div class="axis-title">Tree path — <i>what kind of case is this?</i></div>
+      <div class="axis-text">
+        A dichotomous (multi-way) tree assigns every case to <b>exactly one of 23 leaves</b>
+        based on portal stage and <code>status_customer_id</code>. The classifier is
+        <code>classifyJob()</code> in <code>Dashboard/v3/category-engine.js</code>; the locked
+        spec is <code>design/categorisation-tree.md</code>.
+      </div>
+    </div>
+    <div class="axis-cell">
+      <div class="axis-tag">Axis 2 · separate document</div>
+      <div class="axis-title">SLA status — <i>is it on time or breached?</i></div>
+      <div class="axis-text">
+        A 3-way slice (<code>ok</code> / <code>medium</code> / <code>critical</code>) applied to
+        every case <i>independently</i> of which leaf it sits in. Computed by <code>computeSLA()</code>.
+        Visual restatement: <a href="sla-requirements.html">sla-requirements.html</a>.
+      </div>
+    </div>
+  </div>
+  <div class="axes-note">
+    <b>Why two axes, not one.</b> The tree describes <i>case type</i>; SLA describes <i>case timing</i>.
+    A clean delivery (<code>K4.A</code>) can still be a critical SLA breach if any milestone was missed —
+    the leaf and the SLA tag answer different questions and must not be conflated.
+  </div>
+
+  <!-- ─── The tree diagram ────────────────────────────────────────────── -->
+  <div class="section-head">
+    <h2>The tree <span class="sub">1 root → 4 stages → 4 sub-branches + 5 long-arm leaves → 23 leaves total</span></h2>
+  </div>
+  <div class="tree-frame">
+    <svg class="tree-svg" viewBox="0 0 1120 968" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" aria-label="Case classification tree diagram">
+
+      <!-- ─── Connectors ──────────────────────────────────────────────── -->
+      <!-- Root → 4 K-stages (lane A at x=170; root cy=484; K cys: 64,344,724,904) -->
+      <path class="conn-trunk" d="M 150 484 L 170 484"/>
+      <path class="conn-trunk" d="M 170 64 L 170 904"/>
+      <path class="conn-trunk" d="M 170 64 L 190 64"/>
+      <path class="conn-trunk" d="M 170 344 L 190 344"/>
+      <path class="conn-trunk" d="M 170 724 L 190 724"/>
+      <path class="conn-trunk" d="M 170 904 L 190 904"/>
+
+      <!-- K1 → K1.A (row 1 cy=44), K1.B (row 2 cy=84). Long-arm: both go to col 3 -->
+      <path class="conn" d="M 350 64 L 370 64"/>
+      <path class="conn" d="M 370 44 L 370 84"/>
+      <path class="conn" d="M 370 44 L 590 44"/>
+      <path class="conn" d="M 370 84 L 590 84"/>
+
+      <!-- K2 → K2.A (sub, cy=144), K2.B (sub, cy=364), K2.C (leaf long-arm, row 14 cy=564) -->
+      <path class="conn" d="M 350 344 L 370 344"/>
+      <path class="conn" d="M 370 144 L 370 564"/>
+      <path class="conn" d="M 370 144 L 390 144"/>
+      <path class="conn" d="M 370 364 L 390 364"/>
+      <path class="conn" d="M 370 564 L 590 564"/>
+
+      <!-- K3 → K3.A (sub, cy=624), K3.B (sub, cy=764) -->
+      <path class="conn" d="M 350 724 L 370 724"/>
+      <path class="conn" d="M 370 624 L 370 764"/>
+      <path class="conn" d="M 370 624 L 390 624"/>
+      <path class="conn" d="M 370 764 L 390 764"/>
+
+      <!-- K4 → K4.A (row 22 cy=884), K4.B (row 23 cy=924). Long-arm to col 3 -->
+      <path class="conn" d="M 350 904 L 370 904"/>
+      <path class="conn" d="M 370 884 L 370 924"/>
+      <path class="conn" d="M 370 884 L 590 884"/>
+      <path class="conn" d="M 370 924 L 590 924"/>
+
+      <!-- K2.A → K2.A.i (row 3 cy=124), K2.A.ii (row 4 cy=164) -->
+      <path class="conn" d="M 550 144 L 570 144"/>
+      <path class="conn" d="M 570 124 L 570 164"/>
+      <path class="conn" d="M 570 124 L 590 124"/>
+      <path class="conn" d="M 570 164 L 590 164"/>
+
+      <!-- K2.B → K2.B.1..K2.B.8 (rows 5..13, cy 204,244,284,324,364,404,444,484,524) -->
+      <path class="conn" d="M 550 364 L 570 364"/>
+      <path class="conn" d="M 570 204 L 570 524"/>
+      <path class="conn" d="M 570 204 L 590 204"/>
+      <path class="conn" d="M 570 244 L 590 244"/>
+      <path class="conn" d="M 570 284 L 590 284"/>
+      <path class="conn" d="M 570 324 L 590 324"/>
+      <path class="conn" d="M 570 364 L 590 364"/>
+      <path class="conn" d="M 570 404 L 590 404"/>
+      <path class="conn" d="M 570 444 L 590 444"/>
+      <path class="conn" d="M 570 484 L 590 484"/>
+      <path class="conn" d="M 570 524 L 590 524"/>
+
+      <!-- K3.A → K3.A.i (row 15 cy=604), K3.A.ii (row 16 cy=644) -->
+      <path class="conn" d="M 550 624 L 570 624"/>
+      <path class="conn" d="M 570 604 L 570 644"/>
+      <path class="conn" d="M 570 604 L 590 604"/>
+      <path class="conn" d="M 570 644 L 590 644"/>
+
+      <!-- K3.B → K3.B.1, K3.B.2, K3.B.4, K3.B.5, K3.B.6 (rows 17..21, cy 684,724,764,804,844) -->
+      <path class="conn" d="M 550 764 L 570 764"/>
+      <path class="conn" d="M 570 684 L 570 844"/>
+      <path class="conn" d="M 570 684 L 590 684"/>
+      <path class="conn" d="M 570 724 L 590 724"/>
+      <path class="conn" d="M 570 764 L 590 764"/>
+      <path class="conn" d="M 570 804 L 590 804"/>
+      <path class="conn" d="M 570 844 L 590 844"/>
+
+      <!-- ─── Root ────────────────────────────────────────────────────── -->
+      <g class="node node-root">
+        <rect class="node-box" x="10" y="466" width="140" height="36" rx="2"/>
+        <foreignObject x="10" y="466" width="140" height="36">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="nbody">
+            <span class="nkey">ROOT</span>
+            <div class="ntext">
+              <div class="nlabel-th">ทุกเคส</div>
+              <div class="nlabel-en">All cases</div>
+            </div>
+          </div>
+        </foreignObject>
+      </g>
+
+      <!-- ─── K-stages ───────────────────────────────────────────────── -->
+      <g class="node node-stage">
+        <rect class="node-box" x="190" y="44" width="160" height="40" rx="2"/>
+        <foreignObject x="190" y="44" width="160" height="40">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="nbody">
+            <div class="nrow1">
+              <span class="nkey">K1</span>
+              <span class="nlabel-th">รับงาน</span>
+            </div>
+            <div class="nlabel-en">Intake</div>
+            <div class="nstage-meta">parent_status · NewJob</div>
+          </div>
+        </foreignObject>
+      </g>
+
+      <g class="node node-stage">
+        <rect class="node-box" x="190" y="324" width="160" height="40" rx="2"/>
+        <foreignObject x="190" y="324" width="160" height="40">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="nbody">
+            <div class="nrow1">
+              <span class="nkey">K2</span>
+              <span class="nlabel-th">ระหว่างติดต่อ</span>
+            </div>
+            <div class="nlabel-en">Contacting</div>
+            <div class="nstage-meta">parent_status · InitialCustomer</div>
+          </div>
+        </foreignObject>
+      </g>
+
+      <g class="node node-stage">
+        <rect class="node-box" x="190" y="704" width="160" height="40" rx="2"/>
+        <foreignObject x="190" y="704" width="160" height="40">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="nbody">
+            <div class="nrow1">
+              <span class="nkey">K3</span>
+              <span class="nlabel-th">ระหว่างติดตั้ง</span>
+            </div>
+            <div class="nlabel-en">Scheduled</div>
+            <div class="nstage-meta">parent_status · InstallationScheduled</div>
+          </div>
+        </foreignObject>
+      </g>
+
+      <g class="node node-stage">
+        <rect class="node-box" x="190" y="884" width="160" height="40" rx="2"/>
+        <foreignObject x="190" y="884" width="160" height="40">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="nbody">
+            <div class="nrow1">
+              <span class="nkey">K4</span>
+              <span class="nlabel-th">ส่งเสร็จแล้ว</span>
+            </div>
+            <div class="nlabel-en">Delivered</div>
+            <div class="nstage-meta">parent_status · InstallationCompleted</div>
+          </div>
+        </foreignObject>
+      </g>
+
+      <!-- ─── Sub-branches ───────────────────────────────────────────── -->
+      <g class="node node-sub">
+        <rect class="node-box" x="390" y="126" width="160" height="36" rx="2"/>
+        <foreignObject x="390" y="126" width="160" height="36">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="nbody">
+            <span class="nkey">K2.A</span>
+            <div class="ntext">
+              <div class="nlabel-th">กำลังดำเนินการ</div>
+              <div class="nlabel-en">Active engagement</div>
+            </div>
+          </div>
+        </foreignObject>
+      </g>
+
+      <g class="node node-sub">
+        <rect class="node-box" x="390" y="346" width="160" height="36" rx="2"/>
+        <foreignObject x="390" y="346" width="160" height="36">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="nbody">
+            <span class="nkey">K2.B</span>
+            <div class="ntext">
+              <div class="nlabel-th">งานติดปัญหา</div>
+              <div class="nlabel-en">Issue flagged</div>
+            </div>
+          </div>
+        </foreignObject>
+      </g>
+
+      <g class="node node-sub">
+        <rect class="node-box" x="390" y="606" width="160" height="36" rx="2"/>
+        <foreignObject x="390" y="606" width="160" height="36">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="nbody">
+            <span class="nkey">K3.A</span>
+            <div class="ntext">
+              <div class="nlabel-th">นัดติดตั้งแล้ว</div>
+              <div class="nlabel-en">On track</div>
+            </div>
+          </div>
+        </foreignObject>
+      </g>
+
+      <g class="node node-sub">
+        <rect class="node-box" x="390" y="746" width="160" height="36" rx="2"/>
+        <foreignObject x="390" y="746" width="160" height="36">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="nbody">
+            <span class="nkey">K3.B</span>
+            <div class="ntext">
+              <div class="nlabel-th">งานติดปัญหา</div>
+              <div class="nlabel-en">Issue flagged</div>
+            </div>
+          </div>
+        </foreignObject>
+      </g>
+
+      <!-- ─── Leaves (23) ────────────────────────────────────────────── -->
+      <!-- Row 1 · K1.A -->
+      <g class="node node-leaf">
+        <rect class="node-box" x="590" y="28" width="520" height="32" rx="2"/>
+        <foreignObject x="590" y="28" width="520" height="32">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="nbody">
+            <span class="nkey">K1.A</span>
+            <div class="ntext">
+              <div class="nlabel-th">ยังไม่จ่ายงาน</div>
+              <div class="nlabel-en">Unassigned</div>
+            </div>
+            <span class="ndriver">!assign_date</span>
+          </div>
+        </foreignObject>
+      </g>
+
+      <!-- Row 2 · K1.B -->
+      <g class="node node-leaf">
+        <rect class="node-box" x="590" y="68" width="520" height="32" rx="2"/>
+        <foreignObject x="590" y="68" width="520" height="32">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="nbody">
+            <span class="nkey">K1.B</span>
+            <div class="ntext">
+              <div class="nlabel-th">จ่ายงานแล้ว · รอติดต่อ</div>
+              <div class="nlabel-en">Assigned · awaiting contact</div>
+            </div>
+            <span class="ndriver">assign_date set</span>
+          </div>
+        </foreignObject>
+      </g>
+
+      <!-- Row 3 · K2.A.i -->
+      <g class="node node-leaf">
+        <rect class="node-box" x="590" y="108" width="520" height="32" rx="2"/>
+        <foreignObject x="590" y="108" width="520" height="32">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="nbody">
+            <span class="nkey">K2.A.i</span>
+            <div class="ntext">
+              <div class="nlabel-th">นัดสำรวจ</div>
+              <div class="nlabel-en">Survey scheduled</div>
+            </div>
+            <span class="ndriver">status_id = 1</span>
+          </div>
+        </foreignObject>
+      </g>
+
+      <!-- Row 4 · K2.A.ii -->
+      <g class="node node-leaf">
+        <rect class="node-box" x="590" y="148" width="520" height="32" rx="2"/>
+        <foreignObject x="590" y="148" width="520" height="32">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="nbody">
+            <span class="nkey">K2.A.ii</span>
+            <div class="ntext">
+              <div class="nlabel-th">ติดต่อลูกค้าแล้ว</div>
+              <div class="nlabel-en">Contacted, awaiting next step</div>
+            </div>
+            <span class="ndriver">status_id = 2</span>
+          </div>
+        </foreignObject>
+      </g>
+
+      <!-- Row 5 · K2.B.1 -->
+      <g class="node node-leaf">
+        <rect class="node-box" x="590" y="188" width="520" height="32" rx="2"/>
+        <foreignObject x="590" y="188" width="520" height="32">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="nbody">
+            <span class="nkey">K2.B.1</span>
+            <div class="ntext">
+              <div class="nlabel-th">รอลูกค้าทำวงจร 2 เอง</div>
+              <div class="nlabel-en">Awaiting customer-side wiring</div>
+            </div>
+            <span class="ndriver">status_id = 3</span>
+          </div>
+        </foreignObject>
+      </g>
+
+      <!-- Row 6 · K2.B.2 -->
+      <g class="node node-leaf">
+        <rect class="node-box" x="590" y="228" width="520" height="32" rx="2"/>
+        <foreignObject x="590" y="228" width="520" height="32">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="nbody">
+            <span class="nkey">K2.B.2</span>
+            <div class="ntext">
+              <div class="nlabel-th">สถานที่ไม่พร้อม</div>
+              <div class="nlabel-en">Location not ready</div>
+            </div>
+            <span class="ndriver">status_id = 4</span>
+          </div>
+        </foreignObject>
+      </g>
+
+      <!-- Row 7 · K2.B.3a -->
+      <g class="node node-leaf">
+        <rect class="node-box" x="590" y="268" width="520" height="32" rx="2"/>
+        <foreignObject x="590" y="268" width="520" height="32">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="nbody">
+            <span class="nkey">K2.B.3a</span>
+            <div class="ntext">
+              <div class="nlabel-th">ติดต่อไม่ได้ — เบอร์ไม่ถูกต้อง</div>
+              <div class="nlabel-en">Wrong phone number</div>
+            </div>
+            <span class="ndriver">status_id = 5</span>
+          </div>
+        </foreignObject>
+      </g>
+
+      <!-- Row 8 · K2.B.3b -->
+      <g class="node node-leaf">
+        <rect class="node-box" x="590" y="308" width="520" height="32" rx="2"/>
+        <foreignObject x="590" y="308" width="520" height="32">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="nbody">
+            <span class="nkey">K2.B.3b</span>
+            <div class="ntext">
+              <div class="nlabel-th">ติดต่อไม่ได้ — ลูกค้าไม่รับสาย</div>
+              <div class="nlabel-en">No answer</div>
+            </div>
+            <span class="ndriver">status_id = 6</span>
+          </div>
+        </foreignObject>
+      </g>
+
+      <!-- Row 9 · K2.B.4 -->
+      <g class="node node-leaf">
+        <rect class="node-box" x="590" y="348" width="520" height="32" rx="2"/>
+        <foreignObject x="590" y="348" width="520" height="32">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="nbody">
+            <span class="nkey">K2.B.4</span>
+            <div class="ntext">
+              <div class="nlabel-th">ระบบไฟฟ้าไม่พร้อม</div>
+              <div class="nlabel-en">Electrical not ready (return)</div>
+            </div>
+            <span class="ndriver">status_id = 7</span>
+          </div>
+        </foreignObject>
+      </g>
+
+      <!-- Row 10 · K2.B.5 -->
+      <g class="node node-leaf">
+        <rect class="node-box" x="590" y="388" width="520" height="32" rx="2"/>
+        <foreignObject x="590" y="388" width="520" height="32">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="nbody">
+            <span class="nkey">K2.B.5</span>
+            <div class="ntext">
+              <div class="nlabel-th">ลูกค้าไม่เข้าใจแพ็คเกจ</div>
+              <div class="nlabel-en">Customer confusion</div>
+            </div>
+            <span class="ndriver">status_id = 8</span>
+          </div>
+        </foreignObject>
+      </g>
+
+      <!-- Row 11 · K2.B.6 -->
+      <g class="node node-leaf">
+        <rect class="node-box" x="590" y="428" width="520" height="32" rx="2"/>
+        <foreignObject x="590" y="428" width="520" height="32">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="nbody">
+            <span class="nkey">K2.B.6</span>
+            <div class="ntext">
+              <div class="nlabel-th">ส่วนกลางจ่ายงานซ้ำ</div>
+              <div class="nlabel-en">Duplicate dispatch</div>
+            </div>
+            <span class="ndriver">status_id = 9</span>
+          </div>
+        </foreignObject>
+      </g>
+
+      <!-- Row 12 · K2.B.7 -->
+      <g class="node node-leaf">
+        <rect class="node-box" x="590" y="468" width="520" height="32" rx="2"/>
+        <foreignObject x="590" y="468" width="520" height="32">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="nbody">
+            <span class="nkey">K2.B.7</span>
+            <div class="ntext">
+              <div class="nlabel-th">ลูกค้าไม่ประสงค์ติดตั้ง</div>
+              <div class="nlabel-en">Customer declined</div>
+            </div>
+            <span class="ndriver">status_id = 10</span>
+          </div>
+        </foreignObject>
+      </g>
+
+      <!-- Row 13 · K2.B.8 -->
+      <g class="node node-leaf">
+        <rect class="node-box" x="590" y="508" width="520" height="32" rx="2"/>
+        <foreignObject x="590" y="508" width="520" height="32">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="nbody">
+            <span class="nkey">K2.B.8</span>
+            <div class="ntext">
+              <div class="nlabel-th">คืนงาน admin (&gt;2 เดือน)</div>
+              <div class="nlabel-en">Returned to admin</div>
+            </div>
+            <span class="ndriver">status_id = 11</span>
+          </div>
+        </foreignObject>
+      </g>
+
+      <!-- Row 14 · K2.C (catch-all) -->
+      <g class="node node-leaf node-catchall">
+        <rect class="node-box" x="590" y="548" width="520" height="32" rx="2"/>
+        <foreignObject x="590" y="548" width="520" height="32">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="nbody">
+            <span class="nkey">K2.C</span>
+            <div class="ntext">
+              <div class="nlabel-th">ไม่จัดประเภท</div>
+              <div class="nlabel-en">Uncategorised (data missing)</div>
+            </div>
+            <span class="ndriver">catch-all · unknown sid</span>
+          </div>
+        </foreignObject>
+      </g>
+
+      <!-- Row 15 · K3.A.i -->
+      <g class="node node-leaf">
+        <rect class="node-box" x="590" y="588" width="520" height="32" rx="2"/>
+        <foreignObject x="590" y="588" width="520" height="32">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="nbody">
+            <span class="nkey">K3.A.i</span>
+            <div class="ntext">
+              <div class="nlabel-th">นัดติดตั้ง</div>
+              <div class="nlabel-en">Install date set</div>
+            </div>
+            <span class="ndriver">status_id = 12</span>
+          </div>
+        </foreignObject>
+      </g>
+
+      <!-- Row 16 · K3.A.ii -->
+      <g class="node node-leaf">
+        <rect class="node-box" x="590" y="628" width="520" height="32" rx="2"/>
+        <foreignObject x="590" y="628" width="520" height="32">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="nbody">
+            <span class="nkey">K3.A.ii</span>
+            <div class="ntext">
+              <div class="nlabel-th">รอเครื่องชาร์จ</div>
+              <div class="nlabel-en">Awaiting charger</div>
+            </div>
+            <span class="ndriver">status_id = 13</span>
+          </div>
+        </foreignObject>
+      </g>
+
+      <!-- Row 17 · K3.B.1 -->
+      <g class="node node-leaf">
+        <rect class="node-box" x="590" y="668" width="520" height="32" rx="2"/>
+        <foreignObject x="590" y="668" width="520" height="32">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="nbody">
+            <span class="nkey">K3.B.1</span>
+            <div class="ntext">
+              <div class="nlabel-th">รอลูกค้าทำวงจร 2 เอง</div>
+              <div class="nlabel-en">Awaiting customer-side wiring</div>
+            </div>
+            <span class="ndriver">status_id = 14</span>
+          </div>
+        </foreignObject>
+      </g>
+
+      <!-- Row 18 · K3.B.2 -->
+      <g class="node node-leaf">
+        <rect class="node-box" x="590" y="708" width="520" height="32" rx="2"/>
+        <foreignObject x="590" y="708" width="520" height="32">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="nbody">
+            <span class="nkey">K3.B.2</span>
+            <div class="ntext">
+              <div class="nlabel-th">สถานที่ไม่พร้อม</div>
+              <div class="nlabel-en">Location not ready</div>
+            </div>
+            <span class="ndriver">status_id = 15</span>
+          </div>
+        </foreignObject>
+      </g>
+
+      <!-- Row 19 · K3.B.4 (.3 intentionally skipped) -->
+      <g class="node node-leaf">
+        <rect class="node-box" x="590" y="748" width="520" height="32" rx="2"/>
+        <foreignObject x="590" y="748" width="520" height="32">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="nbody">
+            <span class="nkey">K3.B.4</span>
+            <div class="ntext">
+              <div class="nlabel-th">ระบบไฟฟ้าไม่พร้อม</div>
+              <div class="nlabel-en">Electrical not ready · (.3 skipped — no contact-issues at install stage)</div>
+            </div>
+            <span class="ndriver">status_id = 16</span>
+          </div>
+        </foreignObject>
+      </g>
+
+      <!-- Row 20 · K3.B.5 -->
+      <g class="node node-leaf">
+        <rect class="node-box" x="590" y="788" width="520" height="32" rx="2"/>
+        <foreignObject x="590" y="788" width="520" height="32">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="nbody">
+            <span class="nkey">K3.B.5</span>
+            <div class="ntext">
+              <div class="nlabel-th">ลูกค้าไม่เข้าใจแพ็คเกจ</div>
+              <div class="nlabel-en">Customer confusion</div>
+            </div>
+            <span class="ndriver">status_id = 17</span>
+          </div>
+        </foreignObject>
+      </g>
+
+      <!-- Row 21 · K3.B.6 -->
+      <g class="node node-leaf">
+        <rect class="node-box" x="590" y="828" width="520" height="32" rx="2"/>
+        <foreignObject x="590" y="828" width="520" height="32">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="nbody">
+            <span class="nkey">K3.B.6</span>
+            <div class="ntext">
+              <div class="nlabel-th">ส่วนกลางจ่ายงานซ้ำ</div>
+              <div class="nlabel-en">Duplicate / other team installed</div>
+            </div>
+            <span class="ndriver">status_id = 18</span>
+          </div>
+        </foreignObject>
+      </g>
+
+      <!-- Row 22 · K4.A -->
+      <g class="node node-leaf">
+        <rect class="node-box" x="590" y="868" width="520" height="32" rx="2"/>
+        <foreignObject x="590" y="868" width="520" height="32">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="nbody">
+            <span class="nkey">K4.A</span>
+            <div class="ntext">
+              <div class="nlabel-th">ส่งเรียบร้อย</div>
+              <div class="nlabel-en">Clean delivery</div>
+            </div>
+            <span class="ndriver">wd(confirm→deliver) ≥ 1</span>
+          </div>
+        </foreignObject>
+      </g>
+
+      <!-- Row 23 · K4.B -->
+      <g class="node node-leaf">
+        <rect class="node-box" x="590" y="908" width="520" height="32" rx="2"/>
+        <foreignObject x="590" y="908" width="520" height="32">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="nbody">
+            <span class="nkey">K4.B</span>
+            <div class="ntext">
+              <div class="nlabel-th">ส่งเร็วผิดปกติ (audit)</div>
+              <div class="nlabel-en">Suspicious confirm (audit)</div>
+            </div>
+            <span class="ndriver">wd(confirm→deliver) &lt; 1</span>
+          </div>
+        </foreignObject>
+      </g>
+
+    </svg>
+  </div>
+
+  <!-- ─── Legend ─────────────────────────────────────────────────────── -->
+  <div class="section-head">
+    <h2>How to read the diagram <span class="sub">node-type taxonomy</span></h2>
+  </div>
+  <div class="legend-row">
+    <div class="legend-cell">
+      <div class="legend-name">Root</div>
+      <span class="legend-sample s-root">ROOT</span>
+      <div class="legend-desc">Aggregate of every classified case. KPI tiles in v3 read straight from here.</div>
+    </div>
+    <div class="legend-cell">
+      <div class="legend-name">Stage branch</div>
+      <span class="legend-sample s-stage">K1 · K2 · K3 · K4</span>
+      <div class="legend-desc">Top-level lifecycle bucket. Drives off <code>parent_status</code> from the portal API.</div>
+    </div>
+    <div class="legend-cell">
+      <div class="legend-name">Sub-branch</div>
+      <span class="legend-sample s-sub">K2.A · K2.B · K3.A · K3.B</span>
+      <div class="legend-desc">Active vs. issue-flagged within K2/K3. K1 and K4 split directly to leaves with no sub-branch.</div>
+    </div>
+    <div class="legend-cell">
+      <div class="legend-name">Leaf</div>
+      <span class="legend-sample s-leaf">K2.B.1 · K3.A.i · …</span>
+      <div class="legend-desc">Terminal classification — every case lands in exactly one. Driver shown on the right (status id or rule).</div>
+    </div>
+  </div>
+  <div class="legend-row" style="grid-template-columns: 1fr 1fr;">
+    <div class="legend-cell">
+      <div class="legend-name">Catch-all leaf</div>
+      <span class="legend-sample s-catch">K2.C</span>
+      <div class="legend-desc">Safety net. Any case the classifier can't place (missing or unknown <code>status_customer_id</code>) lands here.
+        If <code>K2.C &gt; 0</code> in any snapshot, the status taxonomy needs updating.</div>
+    </div>
+    <div class="legend-cell">
+      <div class="legend-name">Numbering gap K3.B.3</div>
+      <span class="legend-sample s-leaf" style="font-size:10.5px">.1 · .2 · <s>.3</s> · .4 · .5 · .6</span>
+      <div class="legend-desc">Intentional. K3 cases have already cleared the contact phase, so "cannot contact"
+        (K2.B.3a/.3b) doesn't recur. Preserving the number keeps <code>.4</code> parallel between K2.B and K3.B
+        ("electrical not ready" in both).</div>
+    </div>
+  </div>
+
+</main>
+
+<footer class="app-footer">
+  <div>
+    Sources ·
+    <a href="../design/categorisation-tree.md"><code>design/categorisation-tree.md</code></a> ·
+    <a href="../design/api-reference.md"><code>design/api-reference.md</code></a> ·
+    <a href="v3/category-engine.js"><code>Dashboard/v3/category-engine.js</code></a>
+  </div>
+  <div>
+    Contract <b>GWMMT2610045</b> · © Innopower Co., Ltd.
+  </div>
+</footer>
+
+</body>
+</html>
